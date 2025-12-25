@@ -38,7 +38,7 @@ export default function Lobby({ room, isHost, playerId }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen p-4 sm:p-6 md:p-8"
+      className="min-h-screen p-4 sm:p-6 md:p-8 overflow-x-hidden"
     >
       <div className="max-w-4xl mx-auto">
         {/* Header */}

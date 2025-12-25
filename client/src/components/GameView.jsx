@@ -271,7 +271,7 @@ export default function GameView({ room, isHost, playerId }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen p-4 md:p-8"
+      className="min-h-screen p-4 md:p-8 overflow-x-hidden"
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
@@ -325,10 +325,10 @@ export default function GameView({ room, isHost, playerId }) {
           {/* Main Game Area */}
           <div className="lg:col-span-3 space-y-6">
             {/* Clues */}
-            <div className="card-retro p-6">
+            <div className="card-retro p-4 sm:p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="font-display text-xl text-gold-400">Clues</h2>
-                <span className="font-mono text-sm text-cream/50">
+                <h2 className="font-display text-lg sm:text-xl text-gold-400">Clues</h2>
+                <span className="font-mono text-xs sm:text-sm text-cream/50">
                   {clues.length}/10 revealed
                 </span>
               </div>
@@ -472,13 +472,13 @@ export default function GameView({ room, isHost, playerId }) {
                       initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ duration: 0.4 }}
-                      className="clue-card p-4 rounded-lg"
+                      className="clue-card p-3 sm:p-4 rounded-lg"
                     >
-                      <div className="flex gap-4 items-start">
-                        <div className="points-badge w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0">
+                      <div className="flex gap-3 sm:gap-4 items-start">
+                        <div className="points-badge w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-sm sm:text-lg shrink-0">
                           {clue.number}
                         </div>
-                        <p className="text-cream text-lg leading-relaxed flex-1">
+                        <p className="text-cream text-sm sm:text-lg leading-relaxed flex-1">
                           {clue.text}
                         </p>
                       </div>
@@ -492,10 +492,10 @@ export default function GameView({ room, isHost, playerId }) {
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="bg-gold-600/20 border-2 border-gold-500 rounded-lg p-6 text-center mt-6"
+                      className="bg-gold-600/20 border-2 border-gold-500 rounded-lg p-4 sm:p-6 text-center mt-6"
                     >
-                      <p className="text-gold-400 text-sm uppercase tracking-wider mb-2">The Answer</p>
-                      <p className="font-display text-3xl text-cream text-glow">{correctAnswer}</p>
+                      <p className="text-gold-400 text-xs sm:text-sm uppercase tracking-wider mb-2">The Answer</p>
+                      <p className="font-display text-xl sm:text-3xl text-cream text-glow break-words">{correctAnswer}</p>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -503,18 +503,18 @@ export default function GameView({ room, isHost, playerId }) {
 
               {/* Host Controls */}
               {isHost && (
-                <div className="flex gap-3 mt-6 pt-4 border-t border-gold-900/30">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-6 pt-4 border-t border-gold-900/30">
                   <button
                     onClick={handleRevealClue}
                     disabled={state !== 'revealing' || clues.length >= 10}
-                    className="btn-gold py-3 px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-gold py-3 px-4 sm:px-6 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     Reveal Next Clue
                   </button>
                   <button
                     onClick={handleNextQuestion}
                     disabled={state === 'loading' || state === 'buzzing'}
-                    className="py-3 px-6 rounded-lg border border-gold-700/30 text-gold-400 hover:bg-gold-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="py-3 px-4 sm:px-6 rounded-lg border border-gold-700/30 text-gold-400 hover:bg-gold-900/20 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                   >
                     {state === 'answered' ? 'Next Question' : 'Skip Question'}
                   </button>
@@ -523,7 +523,7 @@ export default function GameView({ room, isHost, playerId }) {
             </div>
 
             {/* Buzz / Answer Area */}
-            <div className="card-retro p-6">
+            <div className="card-retro p-4 sm:p-6">
               <AnimatePresence mode="wait">
                 {/* Ready to Buzz */}
                 {state === 'revealing' && (
@@ -587,19 +587,19 @@ export default function GameView({ room, isHost, playerId }) {
 
                     {/* Answer Input (only for buzzed player) */}
                     {buzzedPlayer.id === playerId ? (
-                      <form onSubmit={handleSubmitAnswer} className="flex gap-3">
+                      <form onSubmit={handleSubmitAnswer} className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         <input
                           ref={answerInputRef}
                           type="text"
                           value={answer}
                           onChange={(e) => setAnswer(e.target.value)}
                           placeholder="Type your answer..."
-                          className="input-retro flex-1 px-4 py-4 rounded-lg text-xl"
+                          className="input-retro flex-1 px-4 py-3 sm:py-4 rounded-lg text-lg sm:text-xl"
                           autoComplete="off"
                         />
                         <button
                           type="submit"
-                          className="btn-gold py-4 px-8 rounded-lg text-lg"
+                          className="btn-gold py-3 sm:py-4 px-8 rounded-lg text-base sm:text-lg"
                         >
                           Submit
                         </button>
@@ -642,21 +642,21 @@ export default function GameView({ room, isHost, playerId }) {
                       <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="mt-6 p-4 rounded-lg bg-gold-600/10 border border-gold-700/30"
+                        className="mt-6 p-3 sm:p-4 rounded-lg bg-gold-600/10 border border-gold-700/30"
                       >
-                        <p className="text-gold-400 font-display text-lg mb-2">
+                        <p className="text-gold-400 font-display text-base sm:text-lg mb-2">
                           {pickerScoreInfo.pickerNickname}'s Picker Score
                         </p>
                         {pickerScoreInfo.skipped ? (
                           <p className="text-cream/50 text-sm">Skipped - no points earned</p>
                         ) : (
-                          <div className="space-y-1 text-sm">
-                            <div className="flex justify-center gap-4 text-cream/60">
+                          <div className="space-y-1 text-xs sm:text-sm">
+                            <div className="flex flex-col sm:flex-row justify-center gap-1 sm:gap-4 text-cream/60">
                               <span>Obscurity: {pickerScoreInfo.obscurity}/10</span>
                               <span>Avg Points: {pickerScoreInfo.avgPointsEarned}</span>
                               <span>Wrong Guesses: {pickerScoreInfo.wrongGuessCount}</span>
                             </div>
-                            <p className="text-gold-500 font-mono text-lg mt-2">
+                            <p className="text-gold-500 font-mono text-base sm:text-lg mt-2">
                               +{pickerScoreInfo.pickerPoints} points
                             </p>
                           </div>

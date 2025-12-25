@@ -92,7 +92,7 @@ export default function Room() {
   const isHost = player.id === room.hostId
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <AnimatePresence mode="wait">
         {!isPlaying ? (
           <Lobby

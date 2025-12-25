@@ -103,22 +103,22 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 overflow-x-hidden">
       {/* Title */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, ease: 'easeOut' }}
-        className="text-center mb-12"
+        className="text-center mb-8 sm:mb-12"
       >
-        <h1 className="font-display text-6xl md:text-8xl font-black text-gold-400 text-glow-strong tracking-tight">
+        <h1 className="font-display text-4xl sm:text-6xl md:text-8xl font-black text-gold-400 text-glow-strong tracking-tight">
           KWIZNIAC
         </h1>
-        <div className="decoration-line w-64 mx-auto my-4" />
-        <p className="font-display text-2xl md:text-3xl text-gold-600 tracking-widest uppercase">
+        <div className="decoration-line w-48 sm:w-64 mx-auto my-3 sm:my-4" />
+        <p className="font-display text-xl sm:text-2xl md:text-3xl text-gold-600 tracking-widest uppercase">
           Infinite
         </p>
-        <p className="text-cream/60 mt-4 font-body text-lg">
+        <p className="text-cream/60 mt-3 sm:mt-4 font-body text-sm sm:text-lg px-4">
           Quiz Bowl-style trivia with AI-generated clues
         </p>
       </motion.div>
@@ -131,8 +131,8 @@ export default function Home() {
         className="w-full max-w-2xl"
       >
         {/* Nickname Input */}
-        <div className="card-retro p-6 mb-6">
-          <label className="block font-display text-gold-400 text-lg mb-3">
+        <div className="card-retro p-4 sm:p-6 mb-4 sm:mb-6">
+          <label className="block font-display text-gold-400 text-base sm:text-lg mb-2 sm:mb-3">
             Your Nickname
           </label>
           <input
@@ -140,7 +140,7 @@ export default function Home() {
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
             placeholder="Enter your nickname..."
-            className="input-retro w-full px-4 py-3 rounded-lg text-lg"
+            className="input-retro w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg text-base sm:text-lg"
             maxLength={20}
           />
         </div>
@@ -152,7 +152,7 @@ export default function Home() {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="bg-burgundy-900/50 border border-burgundy-500 text-cream px-4 py-3 rounded-lg mb-6"
+              className="bg-burgundy-900/50 border border-burgundy-500 text-cream px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg mb-4 sm:mb-6 text-sm sm:text-base"
             >
               {error}
             </motion.div>
@@ -160,14 +160,14 @@ export default function Home() {
         </AnimatePresence>
 
         {/* Create or Join Room */}
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Create Room */}
-          <div className="card-retro p-6">
-            <h2 className="font-display text-xl text-gold-400 mb-4">Create Room</h2>
+          <div className="card-retro p-4 sm:p-6">
+            <h2 className="font-display text-lg sm:text-xl text-gold-400 mb-3 sm:mb-4">Create Room</h2>
             {!showCreate ? (
               <button
                 onClick={() => setShowCreate(true)}
-                className="btn-gold w-full py-3 px-6 rounded-lg text-lg"
+                className="btn-gold w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-base sm:text-lg"
               >
                 Create New Room
               </button>
@@ -181,19 +181,19 @@ export default function Home() {
                   value={roomName}
                   onChange={(e) => setRoomName(e.target.value)}
                   placeholder="Room name..."
-                  className="input-retro w-full px-4 py-3 rounded-lg mb-3"
+                  className="input-retro w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg mb-3 text-sm sm:text-base"
                   maxLength={30}
                 />
-                <div className="flex gap-3">
+                <div className="flex gap-2 sm:gap-3">
                   <button
                     onClick={handleCreateRoom}
-                    className="btn-gold flex-1 py-3 px-4 rounded-lg"
+                    className="btn-gold flex-1 py-2.5 sm:py-3 px-3 sm:px-4 rounded-lg text-sm sm:text-base"
                   >
                     Create
                   </button>
                   <button
                     onClick={() => setShowCreate(false)}
-                    className="px-4 py-3 rounded-lg border border-gold-700/30 text-gold-400 hover:bg-gold-900/20"
+                    className="px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg border border-gold-700/30 text-gold-400 hover:bg-gold-900/20 text-sm sm:text-base"
                   >
                     Cancel
                   </button>
@@ -203,19 +203,19 @@ export default function Home() {
           </div>
 
           {/* Join by Code */}
-          <div className="card-retro p-6">
-            <h2 className="font-display text-xl text-gold-400 mb-4">Join by Code</h2>
+          <div className="card-retro p-4 sm:p-6">
+            <h2 className="font-display text-lg sm:text-xl text-gold-400 mb-3 sm:mb-4">Join by Code</h2>
             <input
               type="text"
               value={joinRoomId}
               onChange={(e) => setJoinRoomId(e.target.value.toUpperCase())}
               placeholder="Enter room code..."
-              className="input-retro w-full px-4 py-3 rounded-lg mb-3 font-mono uppercase tracking-widest"
+              className="input-retro w-full px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg mb-3 font-mono uppercase tracking-widest text-sm sm:text-base"
               maxLength={8}
             />
             <button
               onClick={handleJoinByCode}
-              className="btn-gold w-full py-3 px-6 rounded-lg"
+              className="btn-gold w-full py-2.5 sm:py-3 px-4 sm:px-6 rounded-lg text-sm sm:text-base"
             >
               Join Room
             </button>
@@ -223,19 +223,19 @@ export default function Home() {
         </div>
 
         {/* Public Rooms */}
-        <div className="card-retro p-6">
-          <h2 className="font-display text-xl text-gold-400 mb-4">Public Rooms</h2>
+        <div className="card-retro p-4 sm:p-6">
+          <h2 className="font-display text-lg sm:text-xl text-gold-400 mb-3 sm:mb-4">Public Rooms</h2>
 
           {loading ? (
-            <div className="flex justify-center py-8">
-              <div className="spinner w-8 h-8" />
+            <div className="flex justify-center py-6 sm:py-8">
+              <div className="spinner w-6 h-6 sm:w-8 sm:h-8" />
             </div>
           ) : rooms.length === 0 ? (
-            <p className="text-cream/50 text-center py-8">
+            <p className="text-cream/50 text-center py-6 sm:py-8 text-sm sm:text-base">
               No public rooms available. Create one!
             </p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {rooms.map((room, index) => (
                 <motion.div
                   key={room.id}
@@ -243,16 +243,16 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: index * 0.1 }}
                   onClick={() => handleJoinRoom(room.id)}
-                  className="room-card flex items-center justify-between"
+                  className="room-card flex items-center justify-between p-3 sm:p-6"
                 >
-                  <div>
-                    <h3 className="font-display text-lg text-cream">{room.name}</h3>
-                    <p className="text-cream/50 text-sm">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-display text-base sm:text-lg text-cream truncate">{room.name}</h3>
+                    <p className="text-cream/50 text-xs sm:text-sm truncate">
                       Host: {room.hostNickname} · {room.playerCount} player{room.playerCount !== 1 ? 's' : ''}
                     </p>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-gold-500 text-sm">{room.id}</span>
+                  <div className="flex items-center gap-2 sm:gap-3 ml-2">
+                    <span className="font-mono text-gold-500 text-xs sm:text-sm">{room.id}</span>
                     <span className="text-gold-400">→</span>
                   </div>
                 </motion.div>
@@ -267,7 +267,7 @@ export default function Home() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="mt-12 text-cream/30 text-sm"
+        className="mt-8 sm:mt-12 text-cream/30 text-xs sm:text-sm"
       >
         Powered by Claude AI
       </motion.p>
