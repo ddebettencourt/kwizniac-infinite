@@ -448,4 +448,26 @@ export class GameManager {
 
     this.games.delete(roomId);
   }
+
+  // Get current game state for late joiners
+  getCurrentGameState(roomId) {
+    const gameState = this.games.get(roomId);
+    if (!gameState) return null;
+
+    const room = this.roomManager.getRoom(roomId);
+    if (!room) return null;
+
+    return {
+      gameMode: gameState.gameMode,
+      questionNumber: gameState.questionNumber,
+      state: gameState.state,
+      revealedClues: gameState.revealedClues,
+      currentPoints: gameState.revealedClues.length > 0 ? 10 - (gameState.revealedClues.length - 1) : 10,
+      buzzedPlayer: gameState.buzzedPlayer,
+      answerTimerEnd: gameState.answerTimerEnd,
+      picker: gameState.currentPicker,
+      answerDifficulty: gameState.currentQuestion?.answerDifficulty,
+      players: room.players
+    };
+  }
 }

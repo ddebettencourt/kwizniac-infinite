@@ -38,15 +38,15 @@ export default function Lobby({ room, isHost, playerId }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen p-8"
+      className="min-h-screen p-4 sm:p-6 md:p-8"
     >
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="text-center mb-8">
+        <div className="text-center mb-6 sm:mb-8">
           <motion.h1
             initial={{ y: -30, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="font-display text-4xl md:text-5xl text-gold-400 text-glow mb-2"
+            className="font-display text-2xl sm:text-4xl md:text-5xl text-gold-400 text-glow mb-2"
           >
             {room.name}
           </motion.h1>
@@ -54,33 +54,33 @@ export default function Lobby({ room, isHost, playerId }) {
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="flex items-center justify-center gap-3"
+            className="flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-3"
           >
-            <span className="text-cream/50">Room Code:</span>
+            <span className="text-cream/50 text-sm sm:text-base">Room Code:</span>
             <button
               onClick={copyRoomCode}
-              className="font-mono text-xl text-gold-500 hover:text-gold-400 transition-colors flex items-center gap-2"
+              className="font-mono text-lg sm:text-xl text-gold-500 hover:text-gold-400 transition-colors flex items-center gap-2 bg-gold-500/10 px-3 py-1 rounded-lg"
             >
               {room.id}
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
             </button>
           </motion.div>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid md:grid-cols-3 gap-4 sm:gap-6">
           {/* Players List */}
           <motion.div
             initial={{ x: -30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="md:col-span-2 card-retro p-6"
+            className="md:col-span-2 card-retro p-4 sm:p-6 order-2 md:order-1"
           >
-            <h2 className="font-display text-xl text-gold-400 mb-4">
+            <h2 className="font-display text-lg sm:text-xl text-gold-400 mb-3 sm:mb-4">
               Players ({room.players.length})
             </h2>
-            <div className="space-y-3">
+            <div className="space-y-2 sm:space-y-3">
               {room.players.map((player, index) => (
                 <motion.div
                   key={player.id}
@@ -89,19 +89,19 @@ export default function Lobby({ room, isHost, playerId }) {
                   transition={{ delay: 0.3 + index * 0.1 }}
                   className="player-item"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gold-600/20 flex items-center justify-center font-display text-gold-400">
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gold-600/20 flex items-center justify-center font-display text-gold-400 text-sm sm:text-base">
                       {player.nickname.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <span className="text-cream font-medium">{player.nickname}</span>
+                    <div className="flex flex-wrap items-center gap-1">
+                      <span className="text-cream font-medium text-sm sm:text-base">{player.nickname}</span>
                       {player.isHost && (
-                        <span className="ml-2 text-xs font-mono text-gold-500 uppercase tracking-wider">
+                        <span className="text-[10px] sm:text-xs font-mono text-gold-500 uppercase tracking-wider">
                           Host
                         </span>
                       )}
                       {player.id === playerId && (
-                        <span className="ml-2 text-xs font-mono text-cream/50 uppercase tracking-wider">
+                        <span className="text-[10px] sm:text-xs font-mono text-cream/50 uppercase tracking-wider">
                           (You)
                         </span>
                       )}
@@ -110,7 +110,7 @@ export default function Lobby({ room, isHost, playerId }) {
                   {isHost && !player.isHost && (
                     <button
                       onClick={() => handleKickPlayer(player.id)}
-                      className="text-burgundy-400 hover:text-burgundy-300 text-sm"
+                      className="text-burgundy-400 hover:text-burgundy-300 text-xs sm:text-sm"
                     >
                       Kick
                     </button>
@@ -120,7 +120,7 @@ export default function Lobby({ room, isHost, playerId }) {
             </div>
 
             {room.players.length < 2 && (
-              <p className="text-cream/50 text-center mt-6 py-4 border-t border-gold-900/30">
+              <p className="text-cream/50 text-center mt-4 sm:mt-6 py-3 sm:py-4 border-t border-gold-900/30 text-sm">
                 Waiting for more players to join...
               </p>
             )}
@@ -131,11 +131,11 @@ export default function Lobby({ room, isHost, playerId }) {
             initial={{ x: 30, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="space-y-4"
+            className="space-y-3 sm:space-y-4 order-1 md:order-2"
           >
             {/* Settings Card */}
-            <div className="card-retro p-6">
-              <h2 className="font-display text-xl text-gold-400 mb-4">Settings</h2>
+            <div className="card-retro p-4 sm:p-6">
+              <h2 className="font-display text-lg sm:text-xl text-gold-400 mb-3 sm:mb-4">Settings</h2>
 
               {!showSettings ? (
                 <div className="space-y-3">
@@ -222,42 +222,42 @@ export default function Lobby({ room, isHost, playerId }) {
             </div>
 
             {/* Actions */}
-            <div className="card-retro p-6 space-y-3">
+            <div className="card-retro p-4 sm:p-6 space-y-3">
               {isHost ? (
                 <button
                   onClick={handleStartGame}
                   disabled={room.players.length < 1}
-                  className="btn-gold w-full py-4 rounded-lg text-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-gold w-full py-3 sm:py-4 rounded-lg text-base sm:text-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   Start Game
                 </button>
               ) : (
-                <div className="text-center py-4">
-                  <div className="spinner w-6 h-6 mx-auto mb-2" />
-                  <p className="text-cream/60 text-sm">Waiting for host to start...</p>
+                <div className="text-center py-3 sm:py-4">
+                  <div className="spinner w-5 h-5 sm:w-6 sm:h-6 mx-auto mb-2" />
+                  <p className="text-cream/60 text-xs sm:text-sm">Waiting for host to start...</p>
                 </div>
               )}
 
               <button
                 onClick={handleLeave}
-                className="w-full py-3 rounded-lg border border-burgundy-700/30 text-burgundy-400 hover:bg-burgundy-900/20"
+                className="w-full py-2.5 sm:py-3 rounded-lg border border-burgundy-700/30 text-burgundy-400 hover:bg-burgundy-900/20 text-sm sm:text-base"
               >
                 Leave Room
               </button>
             </div>
 
             {/* How to Play */}
-            <div className="card-retro p-6">
-              <h2 className="font-display text-lg text-gold-400 mb-3">How to Play</h2>
+            <div className="card-retro p-4 sm:p-6">
+              <h2 className="font-display text-base sm:text-lg text-gold-400 mb-2 sm:mb-3">How to Play</h2>
               {(room.settings.gameMode || 'wikipedia') === 'wikipedia' ? (
-                <ul className="space-y-2 text-sm text-cream/70">
+                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-cream/70">
                   <li className="flex gap-2">
                     <span className="text-gold-500">1.</span>
-                    <span>10 clues revealed from hardest to easiest</span>
+                    <span>10 clues from hardest to easiest</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-gold-500">2.</span>
-                    <span>Buzz when you think you know the answer</span>
+                    <span>Buzz when you know the answer</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-gold-500">3.</span>
@@ -265,26 +265,26 @@ export default function Lobby({ room, isHost, playerId }) {
                   </li>
                   <li className="flex gap-2">
                     <span className="text-gold-500">4.</span>
-                    <span>Earlier answers = more points!</span>
+                    <span>Earlier = more points!</span>
                   </li>
                 </ul>
               ) : (
-                <ul className="space-y-2 text-sm text-cream/70">
+                <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm text-cream/70">
                   <li className="flex gap-2">
                     <span className="text-gold-500">1.</span>
-                    <span>One player picks the answer each round</span>
+                    <span>One player picks the answer</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-gold-500">2.</span>
-                    <span>Others buzz and guess as clues are revealed</span>
+                    <span>Others buzz and guess</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-gold-500">3.</span>
-                    <span>Picker scores based on how tricky their answer was</span>
+                    <span>Picker scores on trickiness</span>
                   </li>
                   <li className="flex gap-2">
                     <span className="text-gold-500">4.</span>
-                    <span>Pick something famous but hard to guess!</span>
+                    <span>Pick famous but hard to guess!</span>
                   </li>
                 </ul>
               )}

@@ -56,14 +56,16 @@ export class RoomManager {
       return { success: false, message: 'Room not found' };
     }
 
-    if (room.state !== 'lobby') {
-      return { success: false, message: 'Game already in progress' };
+    if (room.state === 'finished') {
+      return { success: false, message: 'Game has already ended' };
     }
 
     // Check if nickname is taken in this room
     if (room.players.some(p => p.nickname.toLowerCase() === nickname.toLowerCase())) {
       return { success: false, message: 'Nickname already taken in this room' };
     }
+
+    const joinedMidGame = room.state === 'playing';
 
     room.players.push({
       id: playerId,
@@ -72,7 +74,7 @@ export class RoomManager {
       isHost: false
     });
 
-    return { success: true };
+    return { success: true, joinedMidGame };
   }
 
   removePlayer(roomId, playerId) {

@@ -52,9 +52,23 @@ io.on('connection', (socket) => {
       socket.roomId = roomId;
       socket.nickname = nickname;
 
+      const room = roomManager.getRoom(roomId);
+
       // Notify everyone in the room
-      io.to(roomId).emit('room-update', roomManager.getRoom(roomId));
-      socket.emit('join-success', { room: roomManager.getRoom(roomId), playerId: socket.id });
+      io.to(roomId).emit('room-update', room);
+      socket.emit('join-success', { room, playerId: socket.id });
+
+      // If joining mid-game, send them the current game state
+      if (result.joinedMidGame) {
+        const currentGameState = gameManager.getCurrentGameState(roomId);
+        if (currentGameState) {
+          // First tell them the game has started so they enter game mode
+          socket.emit('game-started', { gameMode: currentGameState.gameMode });
+
+          // Then send them the current game state
+          socket.emit('mid-game-sync', currentGameState);
+        }
+      }
     } else {
       socket.emit('join-error', { message: result.message });
     }

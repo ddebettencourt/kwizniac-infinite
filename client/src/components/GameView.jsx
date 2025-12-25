@@ -51,6 +51,27 @@ export default function GameView({ room, isHost, playerId }) {
       setGameMode(mode || 'wikipedia')
     })
 
+    // Handle mid-game sync for late joiners
+    socket.on('mid-game-sync', (gameState) => {
+      console.log('mid-game-sync received:', gameState)
+      setGameMode(gameState.gameMode || 'wikipedia')
+      setQuestionNumber(gameState.questionNumber)
+      setState(gameState.state)
+      setClues(gameState.revealedClues || [])
+      setCurrentPoints(gameState.currentPoints)
+      setBuzzedPlayer(gameState.buzzedPlayer)
+      setTimerEnd(gameState.answerTimerEnd)
+      setPlayers(gameState.players)
+      setAnswerDifficulty(gameState.answerDifficulty)
+      if (gameState.picker) {
+        setCurrentPicker(gameState.picker)
+        // In custom mode, picker can't buzz
+        if (gameState.picker.id === playerId) {
+          setCanBuzz(false)
+        }
+      }
+    })
+
     socket.on('game-state', ({ state: newState, questionNumber: qNum, picker }) => {
       console.log('game-state received:', newState, qNum)
       if (newState === 'loading') {
@@ -163,6 +184,7 @@ export default function GameView({ room, isHost, playerId }) {
 
     return () => {
       socket.off('game-started')
+      socket.off('mid-game-sync')
       socket.off('game-state')
       socket.off('picking-phase')
       socket.off('picker-error')
