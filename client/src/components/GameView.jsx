@@ -253,31 +253,31 @@ export default function GameView({ room, isHost, playerId }) {
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-6">
           <div>
-            <h1 className="font-display text-2xl md:text-3xl text-gold-400 text-glow">
+            <h1 className="font-display text-xl sm:text-2xl md:text-3xl text-gold-400 text-glow">
               {room.name}
             </h1>
-            <p className="text-cream/50 text-sm font-mono">Question {questionNumber}</p>
+            <p className="text-cream/50 text-xs sm:text-sm font-mono">Question {questionNumber}</p>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
             {/* Current Picker indicator (Custom Mode) */}
             {gameMode === 'custom' && currentPicker && state !== 'picking' && (
-              <div className="text-center px-3 py-2 rounded-lg bg-gold-600/10 border border-gold-700/30">
-                <div className="text-xs text-cream/40 uppercase tracking-wider mb-1">Picker</div>
-                <div className="text-gold-400 font-medium text-sm">
+              <div className="text-center px-2 sm:px-3 py-1 sm:py-2 rounded-lg bg-gold-600/10 border border-gold-700/30">
+                <div className="text-[10px] sm:text-xs text-cream/40 uppercase tracking-wider mb-0.5 sm:mb-1">Picker</div>
+                <div className="text-gold-400 font-medium text-xs sm:text-sm">
                   {currentPicker.id === playerId ? 'You' : currentPicker.nickname}
                 </div>
               </div>
             )}
             {answerDifficulty !== null && (
-              <div className="text-center">
+              <div className="text-center hidden sm:block">
                 <div className="text-xs text-cream/40 uppercase tracking-wider mb-1">Obscurity</div>
                 <div className="flex gap-0.5">
                   {[...Array(10)].map((_, i) => (
                     <div
                       key={i}
-                      className={`w-2.5 h-4 rounded-sm ${
+                      className={`w-2 sm:w-2.5 h-3 sm:h-4 rounded-sm ${
                         i < answerDifficulty
                           ? answerDifficulty >= 8 ? 'bg-burgundy-500'
                             : answerDifficulty >= 5 ? 'bg-gold-500'
@@ -522,7 +522,7 @@ export default function GameView({ room, isHost, playerId }) {
                         <button
                           onClick={handleBuzz}
                           disabled={!canBuzz}
-                          className="btn-buzz py-6 px-16 rounded-xl text-2xl"
+                          className="btn-buzz w-full sm:w-auto py-5 sm:py-6 px-8 sm:px-16 rounded-xl text-xl sm:text-2xl"
                         >
                           {canBuzz ? 'BUZZ!' : 'Already Answered'}
                         </button>
@@ -709,29 +709,30 @@ export default function GameView({ room, isHost, playerId }) {
           </div>
 
           {/* Scoreboard */}
-          <div className="lg:col-span-1">
-            <div className="card-retro p-6 sticky top-4">
-              <h2 className="font-display text-xl text-gold-400 mb-4">Scoreboard</h2>
-              <div className="space-y-2">
+          <div className="lg:col-span-1 order-first lg:order-last">
+            <div className="card-retro p-4 lg:p-6 lg:sticky lg:top-4">
+              <h2 className="font-display text-lg lg:text-xl text-gold-400 mb-3 lg:mb-4">Scoreboard</h2>
+              {/* Horizontal scroll on mobile, vertical list on desktop */}
+              <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 -mx-2 px-2 lg:mx-0 lg:px-0">
                 {sortedPlayers.map((player, index) => (
                   <motion.div
                     key={player.id}
                     layout
-                    className={`player-item ${
+                    className={`player-item flex-shrink-0 lg:flex-shrink min-w-[140px] lg:min-w-0 ${
                       buzzedPlayer?.id === player.id ? 'buzzing' : ''
                     } ${gameMode === 'custom' && currentPicker?.id === player.id ? 'border-l-2 border-l-gold-500' : ''}`}
                   >
-                    <div className="flex items-center gap-3">
-                      <span className="w-6 h-6 rounded-full bg-gold-600/30 flex items-center justify-center text-xs font-mono text-gold-400">
+                    <div className="flex items-center gap-2 lg:gap-3">
+                      <span className="w-5 h-5 lg:w-6 lg:h-6 rounded-full bg-gold-600/30 flex items-center justify-center text-[10px] lg:text-xs font-mono text-gold-400">
                         {index + 1}
                       </span>
-                      <span className="text-cream text-sm truncate max-w-[100px]">
+                      <span className="text-cream text-xs lg:text-sm truncate max-w-[80px] lg:max-w-[100px]">
                         {player.nickname}
                         {player.isHost && (
                           <span className="text-gold-500 ml-1">★</span>
                         )}
                         {gameMode === 'custom' && currentPicker?.id === player.id && (
-                          <span className="text-xs text-gold-400 ml-1">(picker)</span>
+                          <span className="text-[10px] lg:text-xs text-gold-400 ml-1">(picker)</span>
                         )}
                       </span>
                     </div>
@@ -739,7 +740,7 @@ export default function GameView({ room, isHost, playerId }) {
                       key={player.score}
                       initial={{ scale: 1.3 }}
                       animate={{ scale: 1 }}
-                      className="score-display px-3 py-1 rounded text-sm"
+                      className="score-display px-2 lg:px-3 py-0.5 lg:py-1 rounded text-xs lg:text-sm"
                     >
                       {player.score}
                     </motion.span>
