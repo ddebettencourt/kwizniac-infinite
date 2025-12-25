@@ -232,7 +232,7 @@ export default function GameView({ room, isHost, playerId }) {
   const myScore = players.find(p => p.id === playerId)?.score || 0
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-gradient-to-b from-charcoal to-charcoal/95">
+    <div className="fixed inset-0 flex flex-col bg-gradient-to-b from-charcoal to-charcoal/95">
       {/* Compact Header - Always visible */}
       <div className="flex-shrink-0 px-3 py-2 border-b border-gold-900/30 bg-charcoal/80">
         <div className="flex items-center justify-between">
@@ -373,7 +373,7 @@ export default function GameView({ room, isHost, playerId }) {
       </div>
 
       {/* Bottom Action Area - Always visible */}
-      <div className="flex-shrink-0 border-t border-gold-900/30 bg-charcoal p-3 safe-area-bottom">
+      <div className="flex-shrink-0 border-t border-gold-900/30 bg-charcoal p-3 pb-4">
         {/* Revealing - Show Buzz Button */}
         {state === 'revealing' && (
           <>
