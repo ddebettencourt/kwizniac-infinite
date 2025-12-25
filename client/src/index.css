@@ -1,0 +1,278 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold-primary: #fbbf24;
+  --gold-dark: #d97706;
+  --burgundy: #ab2146;
+  --cream: #fef7e6;
+  --charcoal: #1a1a1a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Outfit', system-ui, sans-serif;
+  background: linear-gradient(135deg, #1a1a1a 0%, #2d1f1f 50%, #1a1a1a 100%);
+  min-height: 100vh;
+  color: var(--cream);
+  overflow-x: hidden;
+}
+
+/* CRT Scanline Effect Overlay */
+.crt-overlay {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1) 0px,
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 9999;
+}
+
+/* Subtle vignette effect */
+.vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 40%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  z-index: 9998;
+}
+
+/* Gold text glow */
+.text-glow {
+  text-shadow:
+    0 0 10px rgba(251, 191, 36, 0.5),
+    0 0 20px rgba(251, 191, 36, 0.3),
+    0 0 40px rgba(251, 191, 36, 0.2);
+}
+
+.text-glow-strong {
+  text-shadow:
+    0 0 10px rgba(251, 191, 36, 0.8),
+    0 0 30px rgba(251, 191, 36, 0.6),
+    0 0 50px rgba(251, 191, 36, 0.4);
+}
+
+/* Button styling */
+.btn-gold {
+  @apply relative overflow-hidden font-display font-bold text-charcoal;
+  background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 50%, #d97706 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-gold:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 10px 30px rgba(251, 191, 36, 0.4),
+    0 0 60px rgba(251, 191, 36, 0.2);
+}
+
+.btn-gold:active {
+  transform: translateY(0);
+}
+
+.btn-gold::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.5s;
+}
+
+.btn-gold:hover::before {
+  left: 100%;
+}
+
+/* Buzz button special styling */
+.btn-buzz {
+  @apply relative font-display font-bold text-cream uppercase tracking-widest;
+  background: linear-gradient(135deg, #e04d6f 0%, #cc2d56 50%, #ab2146 100%);
+  transition: all 0.2s ease;
+}
+
+.btn-buzz:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow:
+    0 0 30px rgba(224, 77, 111, 0.5),
+    0 0 60px rgba(224, 77, 111, 0.3);
+}
+
+.btn-buzz:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.btn-buzz:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: grayscale(50%);
+}
+
+/* Input styling */
+.input-retro {
+  @apply bg-charcoal/50 border-2 border-gold-600/30 text-cream font-body;
+  @apply focus:border-gold-500 focus:outline-none focus:ring-2 focus:ring-gold-500/20;
+  transition: all 0.3s ease;
+}
+
+.input-retro:focus {
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.2);
+}
+
+/* Card styling */
+.card-retro {
+  @apply bg-charcoal/60 backdrop-blur-sm border border-gold-700/20 rounded-lg;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* Score display - LED style */
+.score-display {
+  font-family: 'JetBrains Mono', monospace;
+  background: #0a0a0a;
+  border: 2px solid #333;
+  color: #fbbf24;
+  text-shadow: 0 0 10px #fbbf24, 0 0 20px #fbbf24;
+  box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Clue card styling */
+.clue-card {
+  @apply relative overflow-hidden;
+  background: linear-gradient(
+    135deg,
+    rgba(26, 26, 26, 0.9) 0%,
+    rgba(45, 31, 31, 0.9) 100%
+  );
+  border: 1px solid rgba(251, 191, 36, 0.2);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.clue-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+}
+
+/* Points badge */
+.points-badge {
+  @apply font-mono font-bold;
+  background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
+  color: #1a1a1a;
+  text-shadow: none;
+}
+
+/* Player list item */
+.player-item {
+  @apply flex items-center justify-between p-3 rounded-lg;
+  background: rgba(251, 191, 36, 0.05);
+  border: 1px solid rgba(251, 191, 36, 0.1);
+  transition: all 0.3s ease;
+}
+
+.player-item:hover {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+.player-item.buzzing {
+  background: rgba(224, 77, 111, 0.2);
+  border-color: rgba(224, 77, 111, 0.5);
+  animation: pulse 0.5s ease-in-out infinite;
+}
+
+/* Timer bar */
+.timer-bar {
+  background: linear-gradient(90deg, #e04d6f, #cc2d56);
+  transition: width 0.1s linear;
+}
+
+/* Loading spinner */
+.spinner {
+  border: 3px solid rgba(251, 191, 36, 0.2);
+  border-top-color: #fbbf24;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Decorative elements */
+.decoration-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fbbf24, transparent);
+}
+
+/* Room card hover effect */
+.room-card {
+  @apply card-retro p-6 cursor-pointer;
+  transition: all 0.3s ease;
+}
+
+.room-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(251, 191, 36, 0.4);
+  box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.5),
+    0 0 30px rgba(251, 191, 36, 0.1);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a1a;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fbbf24;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #d97706;
+}
+
+/* Selection color */
+::selection {
+  background: rgba(251, 191, 36, 0.3);
+  color: #fef7e6;
+}
