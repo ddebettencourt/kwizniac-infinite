@@ -103,7 +103,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 overflow-x-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8">
       {/* Title */}
       <motion.div
         initial={{ opacity: 0, y: -50 }}
@@ -246,7 +246,14 @@ export default function Home() {
                   className="room-card flex items-center justify-between p-3 sm:p-6"
                 >
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-display text-base sm:text-lg text-cream truncate">{room.name}</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="font-display text-base sm:text-lg text-cream truncate">{room.name}</h3>
+                      {room.inProgress && (
+                        <span className="text-[10px] sm:text-xs px-1.5 py-0.5 rounded bg-green-600/20 text-green-400 font-mono uppercase">
+                          Live
+                        </span>
+                      )}
+                    </div>
                     <p className="text-cream/50 text-xs sm:text-sm truncate">
                       Host: {room.hostNickname} · {room.playerCount} player{room.playerCount !== 1 ? 's' : ''}
                     </p>

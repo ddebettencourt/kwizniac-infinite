@@ -38,12 +38,13 @@ export class RoomManager {
   getPublicRooms() {
     const publicRooms = [];
     for (const room of this.rooms.values()) {
-      if (room.settings.isPublic && room.state === 'lobby') {
+      if (room.settings.isPublic && room.state !== 'finished') {
         publicRooms.push({
           id: room.id,
           name: room.name,
           playerCount: room.players.length,
-          hostNickname: room.players.find(p => p.isHost)?.nickname || 'Unknown'
+          hostNickname: room.players.find(p => p.isHost)?.nickname || 'Unknown',
+          inProgress: room.state === 'playing'
         });
       }
     }
