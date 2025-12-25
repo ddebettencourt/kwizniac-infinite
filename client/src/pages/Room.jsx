@@ -15,6 +15,7 @@ export default function Room() {
   const [gameState, setGameState] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [kicked, setKicked] = useState(false)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     if (!socket) return
@@ -25,9 +26,30 @@ export default function Room() {
       return
     }
 
+    // Request current room state immediately
+    const requestRoomState = () => {
+      socket.emit('get-room-state', { roomId })
+    }
+
+    // Request immediately and also when socket reconnects
+    if (socket.connected) {
+      requestRoomState()
+    }
+    socket.on('connect', requestRoomState)
+
     // Room updates
     socket.on('room-update', (updatedRoom) => {
       setRoom(updatedRoom)
+      // Check if game is in progress
+      if (updatedRoom.state === 'playing') {
+        setIsPlaying(true)
+      }
+    })
+
+    // Room error (e.g., room not found)
+    socket.on('room-error', ({ message }) => {
+      setError(message)
+      setTimeout(() => navigate('/'), 2000)
     })
 
     // Game started
@@ -53,13 +75,15 @@ export default function Room() {
     })
 
     return () => {
+      socket.off('connect', requestRoomState)
       socket.off('room-update')
+      socket.off('room-error')
       socket.off('game-started')
       socket.off('game-state')
       socket.off('host-changed')
       socket.off('kicked')
     }
-  }, [socket, player.id, navigate])
+  }, [socket, player.id, roomId, navigate])
 
   if (kicked) {
     return (
@@ -71,6 +95,23 @@ export default function Room() {
         >
           <h2 className="font-display text-2xl text-burgundy-400 mb-4">
             You have been kicked
+          </h2>
+          <p className="text-cream/60">Redirecting to home...</p>
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="card-retro p-8 text-center"
+        >
+          <h2 className="font-display text-2xl text-burgundy-400 mb-4">
+            {error}
           </h2>
           <p className="text-cream/60">Redirecting to home...</p>
         </motion.div>

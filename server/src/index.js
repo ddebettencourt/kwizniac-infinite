@@ -149,6 +149,27 @@ io.on('connection', (socket) => {
     }
   });
 
+  // Request current room state (for when client reconnects or page refreshes)
+  socket.on('get-room-state', ({ roomId }) => {
+    const room = roomManager.getRoom(roomId);
+    if (room) {
+      // Make sure socket is in the room (for receiving updates)
+      socket.join(roomId);
+      socket.roomId = roomId;
+
+      socket.emit('room-update', room);
+
+      // If game is in progress, also send game state
+      const gameState = gameManager.getCurrentGameState(roomId);
+      if (gameState) {
+        socket.emit('game-started', { gameMode: gameState.gameMode });
+        socket.emit('mid-game-sync', gameState);
+      }
+    } else {
+      socket.emit('room-error', { message: 'Room not found' });
+    }
+  });
+
   // Handle disconnect
   socket.on('disconnect', () => {
     console.log(`Player disconnected: ${socket.id}`);
