@@ -16,10 +16,6 @@ COPY . .
 # Build client
 RUN npm run build
 
-# Expose port
-EXPOSE 3001
-
 # Start server
 ENV NODE_ENV=production
-ENV PORT=3001
 CMD ["npm", "start"]

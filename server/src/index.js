@@ -287,4 +287,5 @@ if (process.env.NODE_ENV === 'production') {
 const PORT = process.env.PORT || 3001;
 server.listen(PORT, () => {
   console.log(`Kwizniac server running on port ${PORT}`);
+  console.log(`ANTHROPIC_API_KEY set: ${!!process.env.ANTHROPIC_API_KEY} (length: ${process.env.ANTHROPIC_API_KEY?.length || 0})`);
 });
