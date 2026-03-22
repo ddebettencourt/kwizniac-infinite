@@ -9,33 +9,74 @@ export default function Room() {
   const { roomId } = useParams()
   const navigate = useNavigate()
   const socket = useContext(SocketContext)
-  const { player } = useContext(PlayerContext)
+  const { player, setPlayer } = useContext(PlayerContext)
 
   const [room, setRoom] = useState(null)
   const [gameState, setGameState] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [kicked, setKicked] = useState(false)
   const [error, setError] = useState(null)
+  const [attemptingRejoin, setAttemptingRejoin] = useState(false)
 
   useEffect(() => {
     if (!socket) return
 
-    // If player hasn't joined through home page, redirect
+    // If player hasn't joined through home page, try to rejoin via device ID
     if (!player.id) {
-      navigate('/')
-      return
+      setAttemptingRejoin(true)
+
+      const handleJoinSuccess = ({ room: joinedRoom, playerId }) => {
+        setPlayer(prev => ({ id: playerId, nickname: prev.nickname || joinedRoom.players.find(p => p.id === playerId)?.nickname || '' }))
+        setAttemptingRejoin(false)
+      }
+
+      const handleJoinError = () => {
+        setAttemptingRejoin(false)
+        navigate('/')
+      }
+
+      const handleSessionCheck = ({ hasSession, roomId: sessionRoomId, nickname }) => {
+        if (hasSession && sessionRoomId === roomId) {
+          // We have an active session in this room - rejoin
+          if (nickname) {
+            setPlayer(prev => ({ ...prev, nickname }))
+          }
+          socket.emit('rejoin-room', { roomId })
+        } else {
+          // No session - check if we have a nickname to join fresh
+          const savedNickname = sessionStorage.getItem('kwizniac_nickname')
+          if (savedNickname) {
+            socket.emit('join-room', { roomId, nickname: savedNickname })
+          } else {
+            setAttemptingRejoin(false)
+            navigate('/')
+          }
+        }
+      }
+
+      socket.on('join-success', handleJoinSuccess)
+      socket.on('join-error', handleJoinError)
+      socket.on('session-check', handleSessionCheck)
+
+      // Check for active session
+      if (socket.connected) {
+        socket.emit('check-session')
+      } else {
+        socket.on('connect', () => socket.emit('check-session'))
+      }
+
+      return () => {
+        socket.off('join-success', handleJoinSuccess)
+        socket.off('join-error', handleJoinError)
+        socket.off('session-check', handleSessionCheck)
+      }
     }
 
-    // Request current room state immediately
-    const requestRoomState = () => {
+    // Normal flow - player already has an ID
+    // Request room state on mount (not on reconnect — the rejoin effect handles that)
+    if (socket.connected) {
       socket.emit('get-room-state', { roomId })
     }
-
-    // Request immediately and also when socket reconnects
-    if (socket.connected) {
-      requestRoomState()
-    }
-    socket.on('connect', requestRoomState)
 
     // Room updates
     socket.on('room-update', (updatedRoom) => {
@@ -71,11 +112,14 @@ export default function Room() {
     // Kicked from room
     socket.on('kicked', () => {
       setKicked(true)
+      sessionStorage.removeItem('kwizniac_room_id')
       setTimeout(() => navigate('/'), 2000)
     })
 
+    // Store room ID for potential rejoin
+    sessionStorage.setItem('kwizniac_room_id', roomId)
+
     return () => {
-      socket.off('connect', requestRoomState)
       socket.off('room-update')
       socket.off('room-error')
       socket.off('game-started')
@@ -83,7 +127,32 @@ export default function Room() {
       socket.off('host-changed')
       socket.off('kicked')
     }
-  }, [socket, player.id, roomId, navigate])
+  }, [socket, player.id, roomId, navigate, setPlayer])
+
+  // Handle socket reconnection - rejoin the room with new socket ID
+  useEffect(() => {
+    if (!socket || !player.id) return
+
+    const handleReconnect = () => {
+      console.log('Socket reconnected, rejoining room...')
+      socket.emit('rejoin-room', { roomId })
+    }
+
+    // Socket.io v4 emits 'connect' on reconnect
+    socket.on('connect', handleReconnect)
+
+    socket.on('join-success', ({ room: joinedRoom, playerId }) => {
+      setPlayer(prev => ({ ...prev, id: playerId }))
+      setRoom(joinedRoom)
+      // After rejoin, request full game state
+      socket.emit('get-room-state', { roomId })
+    })
+
+    return () => {
+      socket.off('connect', handleReconnect)
+      socket.off('join-success')
+    }
+  }, [socket, player.id, roomId, setPlayer])
 
   if (kicked) {
     return (
@@ -119,12 +188,14 @@ export default function Room() {
     )
   }
 
-  if (!room) {
+  if (!room || attemptingRejoin) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="spinner w-12 h-12 mx-auto mb-4" />
-          <p className="text-gold-400 font-display">Loading room...</p>
+          <p className="text-gold-400 font-display">
+            {attemptingRejoin ? 'Reconnecting...' : 'Loading room...'}
+          </p>
         </div>
       </div>
     )

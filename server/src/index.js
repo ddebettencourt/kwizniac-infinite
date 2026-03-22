@@ -42,15 +42,75 @@ app.get('/api/rooms', (req, res) => {
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-  console.log(`Player connected: ${socket.id}`);
+  const deviceId = socket.handshake.auth?.deviceId;
+  console.log(`Player connected: ${socket.id} (device: ${deviceId || 'none'})`);
 
-  // Join a room
-  socket.on('join-room', ({ roomId, nickname }) => {
-    const result = roomManager.joinRoom(roomId, socket.id, nickname);
+  // Check if this device has an active session to rejoin
+  socket.on('check-session', () => {
+    if (!deviceId) {
+      socket.emit('session-check', { hasSession: false });
+      return;
+    }
+
+    const session = roomManager.getDeviceSession(deviceId);
+    if (session) {
+      socket.emit('session-check', {
+        hasSession: true,
+        roomId: session.roomId,
+        nickname: session.nickname
+      });
+    } else {
+      socket.emit('session-check', { hasSession: false });
+    }
+  });
+
+  // Rejoin a room after disconnect/refresh
+  socket.on('rejoin-room', ({ roomId }) => {
+    if (!deviceId) {
+      socket.emit('join-error', { message: 'No device ID' });
+      return;
+    }
+
+    const result = roomManager.rejoinPlayer(roomId, deviceId, socket.id);
     if (result.success) {
       socket.join(roomId);
       socket.roomId = roomId;
-      socket.nickname = nickname;
+      socket.nickname = result.nickname;
+
+      // Update game state with new socket ID
+      if (result.oldPlayerId) {
+        gameManager.updatePlayerId(roomId, result.oldPlayerId, socket.id);
+      }
+
+      const room = roomManager.getRoom(roomId);
+      io.to(roomId).emit('room-update', room);
+      socket.emit('join-success', { room, playerId: socket.id });
+
+      // If rejoining mid-game, send current game state
+      if (result.joinedMidGame) {
+        const currentGameState = gameManager.getCurrentGameState(roomId);
+        if (currentGameState) {
+          socket.emit('game-started', { gameMode: currentGameState.gameMode });
+          socket.emit('mid-game-sync', currentGameState);
+        }
+      }
+    } else {
+      socket.emit('join-error', { message: result.message });
+    }
+  });
+
+  // Join a room
+  socket.on('join-room', ({ roomId, nickname }) => {
+    const result = roomManager.joinRoom(roomId, socket.id, nickname, deviceId);
+    if (result.success) {
+      socket.join(roomId);
+      socket.roomId = roomId;
+      socket.nickname = result.nickname || nickname;
+
+      // If this was a rejoin, update game state IDs
+      if (result.rejoined && result.oldPlayerId) {
+        gameManager.updatePlayerId(roomId, result.oldPlayerId, socket.id);
+      }
 
       const room = roomManager.getRoom(roomId);
 
@@ -76,7 +136,7 @@ io.on('connection', (socket) => {
 
   // Create a room
   socket.on('create-room', ({ roomName, nickname, settings }) => {
-    const room = roomManager.createRoom(roomName, socket.id, nickname, settings);
+    const room = roomManager.createRoom(roomName, socket.id, nickname, deviceId, settings);
     socket.join(room.id);
     socket.roomId = room.id;
     socket.nickname = nickname;
@@ -170,21 +230,49 @@ io.on('connection', (socket) => {
     }
   });
 
-  // Handle disconnect
+  // Handle disconnect - use grace period instead of immediate removal
   socket.on('disconnect', () => {
     console.log(`Player disconnected: ${socket.id}`);
-    if (socket.roomId) {
-      const wasHost = roomManager.removePlayer(socket.roomId, socket.id);
-      const room = roomManager.getRoom(socket.roomId);
+    if (!socket.roomId) return;
+
+    const roomId = socket.roomId;
+
+    // Try graceful disconnect with grace period
+    const graceful = roomManager.startDisconnectTimer(roomId, socket.id, () => {
+      // Grace period expired - actually remove the player
+      console.log(`[${roomId}] Grace period expired for ${socket.id}, removing player`);
+      const wasHost = roomManager.removePlayer(roomId, socket.id);
+      const room = roomManager.getRoom(roomId);
 
       if (room) {
-        io.to(socket.roomId).emit('room-update', room);
+        io.to(roomId).emit('room-update', room);
         if (wasHost) {
-          io.to(socket.roomId).emit('host-changed', { newHostId: room.hostId });
+          io.to(roomId).emit('host-changed', { newHostId: room.hostId });
         }
       }
 
       io.emit('rooms-updated', roomManager.getPublicRooms());
+    });
+
+    if (!graceful) {
+      // No device ID - remove immediately (legacy behavior)
+      const wasHost = roomManager.removePlayer(roomId, socket.id);
+      const room = roomManager.getRoom(roomId);
+
+      if (room) {
+        io.to(roomId).emit('room-update', room);
+        if (wasHost) {
+          io.to(roomId).emit('host-changed', { newHostId: room.hostId });
+        }
+      }
+
+      io.emit('rooms-updated', roomManager.getPublicRooms());
+    } else {
+      // Notify other players this player disconnected (but is still in room)
+      const room = roomManager.getRoom(roomId);
+      if (room) {
+        io.to(roomId).emit('room-update', room);
+      }
     }
   });
 });

@@ -449,6 +449,19 @@ export class GameManager {
     this.games.delete(roomId);
   }
 
+  // Update player ID in game state when they rejoin with a new socket
+  updatePlayerId(roomId, oldId, newId) {
+    const gameState = this.games.get(roomId);
+    if (!gameState) return;
+
+    if (gameState.buzzedPlayer?.id === oldId) {
+      gameState.buzzedPlayer.id = newId;
+    }
+    if (gameState.currentPicker?.id === oldId) {
+      gameState.currentPicker.id = newId;
+    }
+  }
+
   // Get current game state for late joiners
   getCurrentGameState(roomId) {
     const gameState = this.games.get(roomId);

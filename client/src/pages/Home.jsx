@@ -8,7 +8,7 @@ export default function Home() {
   const { player, setPlayer } = useContext(PlayerContext)
   const navigate = useNavigate()
 
-  const [nickname, setNickname] = useState('')
+  const [nickname, setNickname] = useState(() => sessionStorage.getItem('kwizniac_nickname') || '')
   const [rooms, setRooms] = useState([])
   const [showCreate, setShowCreate] = useState(false)
   const [roomName, setRoomName] = useState('')
@@ -35,22 +35,56 @@ export default function Home() {
     }
   }
 
+  const [activeSession, setActiveSession] = useState(null)
+
+  // Check for active session on load
+  useEffect(() => {
+    if (!socket) return
+
+    const handleSessionCheck = ({ hasSession, roomId, nickname: sessionNickname }) => {
+      if (hasSession) {
+        setActiveSession({ roomId, nickname: sessionNickname })
+        if (sessionNickname && !nickname) {
+          setNickname(sessionNickname)
+        }
+      } else {
+        setActiveSession(null)
+      }
+    }
+
+    socket.on('session-check', handleSessionCheck)
+
+    if (socket.connected) {
+      socket.emit('check-session')
+    } else {
+      socket.once('connect', () => socket.emit('check-session'))
+    }
+
+    return () => {
+      socket.off('session-check', handleSessionCheck)
+    }
+  }, [socket])
+
   // Socket event listeners
   useEffect(() => {
     if (!socket) return
 
     socket.on('room-created', ({ room, playerId }) => {
       setPlayer({ id: playerId, nickname })
+      sessionStorage.setItem('kwizniac_nickname', nickname)
       navigate(`/room/${room.id}`)
     })
 
     socket.on('join-success', ({ room, playerId }) => {
-      setPlayer({ id: playerId, nickname })
+      const joinNickname = room.players.find(p => p.id === playerId)?.nickname || nickname
+      setPlayer({ id: playerId, nickname: joinNickname })
+      sessionStorage.setItem('kwizniac_nickname', joinNickname)
       navigate(`/room/${room.id}`)
     })
 
     socket.on('join-error', ({ message }) => {
       setError(message)
+      setTimeout(() => setError(''), 5000)
     })
 
     socket.on('rooms-updated', (updatedRooms) => {
@@ -65,13 +99,18 @@ export default function Home() {
     }
   }, [socket, nickname, navigate, setPlayer])
 
+  const showError = (msg) => {
+    setError(msg)
+    setTimeout(() => setError(''), 5000)
+  }
+
   const handleCreateRoom = () => {
     if (!nickname.trim()) {
-      setError('Please enter a nickname')
+      showError('Please enter a nickname')
       return
     }
     if (!roomName.trim()) {
-      setError('Please enter a room name')
+      showError('Please enter a room name')
       return
     }
     setError('')
@@ -84,7 +123,7 @@ export default function Home() {
 
   const handleJoinRoom = (roomId) => {
     if (!nickname.trim()) {
-      setError('Please enter a nickname first')
+      showError('Please enter a nickname first')
       return
     }
     setError('')
@@ -94,9 +133,14 @@ export default function Home() {
     })
   }
 
+  const handleRejoin = () => {
+    if (!activeSession) return
+    socket.emit('rejoin-room', { roomId: activeSession.roomId })
+  }
+
   const handleJoinByCode = () => {
     if (!joinRoomId.trim()) {
-      setError('Please enter a room code')
+      showError('Please enter a room code')
       return
     }
     handleJoinRoom(joinRoomId.trim().toUpperCase())
@@ -122,6 +166,35 @@ export default function Home() {
           Quiz Bowl-style trivia with AI-generated clues
         </p>
       </motion.div>
+
+      {/* Rejoin Banner */}
+      <AnimatePresence>
+        {activeSession && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="w-full max-w-2xl mb-4"
+          >
+            <div className="card-retro p-4 border-2 border-gold-500 bg-gold-600/10">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-gold-400 font-display text-sm">Active Game Found</p>
+                  <p className="text-cream/60 text-xs">
+                    Room {activeSession.roomId} as {activeSession.nickname}
+                  </p>
+                </div>
+                <button
+                  onClick={handleRejoin}
+                  className="btn-gold px-4 py-2 rounded-lg text-sm whitespace-nowrap"
+                >
+                  Rejoin Game
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Content */}
       <motion.div

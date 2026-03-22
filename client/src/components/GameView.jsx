@@ -2,6 +2,13 @@ import { useState, useEffect, useContext, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { SocketContext } from '../App'
 
+const LOADING_MESSAGES = [
+  "Researching...",
+  "Crafting clues...",
+  "Almost there...",
+  "Balancing difficulty..."
+]
+
 export default function GameView({ room, isHost, playerId }) {
   const socket = useContext(SocketContext)
   const answerInputRef = useRef(null)
@@ -31,12 +38,6 @@ export default function GameView({ room, isHost, playerId }) {
   // Loading animation state
   const [loadingTime, setLoadingTime] = useState(0)
   const [funFactIndex, setFunFactIndex] = useState(0)
-  const funFacts = [
-    "Researching...",
-    "Crafting clues...",
-    "Almost there...",
-    "Balancing difficulty..."
-  ]
 
   // Socket event listeners
   useEffect(() => {
@@ -175,7 +176,7 @@ export default function GameView({ room, isHost, playerId }) {
       socket.off('question-skipped')
       socket.off('room-update')
     }
-  }, [socket, playerId, lastResult])
+  }, [socket, playerId])
 
   // Timer countdown
   useEffect(() => {
@@ -195,12 +196,12 @@ export default function GameView({ room, isHost, playerId }) {
       return
     }
     const timerInterval = setInterval(() => setLoadingTime(prev => prev + 1), 1000)
-    const factInterval = setInterval(() => setFunFactIndex(prev => (prev + 1) % funFacts.length), 2500)
+    const factInterval = setInterval(() => setFunFactIndex(prev => (prev + 1) % LOADING_MESSAGES.length), 2500)
     return () => {
       clearInterval(timerInterval)
       clearInterval(factInterval)
     }
-  }, [state, funFacts.length])
+  }, [state])
 
   const handleBuzz = () => {
     if (state !== 'revealing' || !canBuzz) return
@@ -229,7 +230,7 @@ export default function GameView({ room, isHost, playerId }) {
   }
 
   const sortedPlayers = [...players].sort((a, b) => b.score - a.score)
-  const myScore = players.find(p => p.id === playerId)?.score || 0
+  const myScore = players.find(p => p.id === playerId)?.score ?? 0
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gradient-to-b from-charcoal to-charcoal/95">
@@ -243,6 +244,9 @@ export default function GameView({ room, isHost, playerId }) {
                 Picker: {currentPicker.id === playerId ? 'You' : currentPicker.nickname}
               </span>
             )}
+            <span className="text-xs font-mono text-cream/40">
+              You: <span className="text-gold-400">{myScore}</span>
+            </span>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-cream/50 text-xs">{clues.length}/10</span>
@@ -268,7 +272,7 @@ export default function GameView({ room, isHost, playerId }) {
                 <span className="font-mono text-2xl text-gold-400">{loadingTime}s</span>
               </div>
             </div>
-            <p className="text-gold-400 font-display text-base">{funFacts[funFactIndex]}</p>
+            <p className="text-gold-400 font-display text-base">{LOADING_MESSAGES[funFactIndex]}</p>
           </div>
         )}
 
@@ -321,7 +325,7 @@ export default function GameView({ room, isHost, playerId }) {
                 animate={{ opacity: 1, y: 0 }}
                 className="flex gap-2 p-2 rounded-lg bg-charcoal/50 border border-gold-900/20"
               >
-                <span className="w-6 h-6 rounded-full bg-gold-600 text-charcoal flex items-center justify-center text-xs font-bold flex-shrink-0">
+                <span className="w-7 h-6 rounded-full bg-gold-600 text-charcoal flex items-center justify-center text-xs font-bold flex-shrink-0">
                   {clue.number}
                 </span>
                 <p className="text-cream text-sm leading-snug">{clue.text}</p>
@@ -373,7 +377,7 @@ export default function GameView({ room, isHost, playerId }) {
       </div>
 
       {/* Bottom Action Area - Always visible */}
-      <div className="flex-shrink-0 border-t border-gold-900/30 bg-charcoal p-3 pb-4">
+      <div className="flex-shrink-0 border-t border-gold-900/30 bg-charcoal p-3 safe-area-bottom">
         {/* Revealing - Show Buzz Button */}
         {state === 'revealing' && (
           <>
@@ -469,16 +473,16 @@ export default function GameView({ room, isHost, playerId }) {
 
         {/* Loading/Picking - Show Scoreboard */}
         {(state === 'loading' || state === 'picking') && (
-          <div className="flex gap-2 overflow-x-auto py-1">
-            {sortedPlayers.slice(0, 5).map((player, i) => (
+          <div className="flex gap-2 overflow-x-auto py-1 scrollbar-hide">
+            {sortedPlayers.map((p, i) => (
               <div
-                key={player.id}
+                key={p.id}
                 className={`flex-shrink-0 px-3 py-1.5 rounded-lg text-xs ${
-                  player.id === playerId ? 'bg-gold-600/20 border border-gold-500' : 'bg-charcoal/50'
-                }`}
+                  p.id === playerId ? 'bg-gold-600/20 border border-gold-500' : 'bg-charcoal/50'
+                } ${p.connected === false ? 'opacity-40' : ''}`}
               >
-                <span className="text-cream/70">{i + 1}. {player.nickname.slice(0, 8)}</span>
-                <span className="text-gold-400 ml-2 font-mono">{player.score}</span>
+                <span className="text-cream/70">{i + 1}. {p.nickname.slice(0, 8)}</span>
+                <span className="text-gold-400 ml-2 font-mono">{p.score}</span>
               </div>
             ))}
           </div>

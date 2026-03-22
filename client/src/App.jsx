@@ -7,14 +7,39 @@ import Room from './pages/Room'
 export const SocketContext = createContext(null)
 export const PlayerContext = createContext(null)
 
+// Generate or retrieve a persistent device ID
+function getDeviceId() {
+  let deviceId = localStorage.getItem('kwizniac_device_id')
+  if (!deviceId) {
+    deviceId = crypto.randomUUID()
+    localStorage.setItem('kwizniac_device_id', deviceId)
+  }
+  return deviceId
+}
+
 function App() {
   const [socket, setSocket] = useState(null)
-  const [player, setPlayer] = useState({ id: null, nickname: '' })
+  const [player, setPlayer] = useState(() => {
+    // Restore nickname from sessionStorage if available
+    const savedNickname = sessionStorage.getItem('kwizniac_nickname')
+    return { id: null, nickname: savedNickname || '' }
+  })
+
+  // Persist nickname to sessionStorage when it changes
+  useEffect(() => {
+    if (player.nickname) {
+      sessionStorage.setItem('kwizniac_nickname', player.nickname)
+    }
+  }, [player.nickname])
 
   useEffect(() => {
+    const deviceId = getDeviceId()
+
     const newSocket = io(window.location.hostname === 'localhost'
       ? 'http://localhost:3001'
-      : window.location.origin)
+      : window.location.origin, {
+      auth: { deviceId }
+    })
 
     setSocket(newSocket)
 

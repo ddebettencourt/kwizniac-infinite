@@ -78,7 +78,7 @@ export default function Lobby({ room, isHost, playerId }) {
             className="md:col-span-2 card-retro p-4 sm:p-6 order-2 md:order-1"
           >
             <h2 className="font-display text-lg sm:text-xl text-gold-400 mb-3 sm:mb-4">
-              Players ({room.players.length})
+              Players ({room.players.filter(p => p.connected !== false).length}{room.players.some(p => p.connected === false) ? `/${room.players.length}` : ''})
             </h2>
             <div className="space-y-2 sm:space-y-3">
               {room.players.map((player, index) => (
@@ -87,14 +87,23 @@ export default function Lobby({ room, isHost, playerId }) {
                   initial={{ x: -20, opacity: 0 }}
                   animate={{ x: 0, opacity: 1 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
-                  className="player-item"
+                  className={`player-item ${player.connected === false ? 'opacity-50' : ''}`}
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gold-600/20 flex items-center justify-center font-display text-gold-400 text-sm sm:text-base">
+                    <div className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-display text-sm sm:text-base ${
+                      player.connected === false ? 'bg-cream/10 text-cream/40' : 'bg-gold-600/20 text-gold-400'
+                    }`}>
                       {player.nickname.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex flex-wrap items-center gap-1">
-                      <span className="text-cream font-medium text-sm sm:text-base">{player.nickname}</span>
+                      <span className={`font-medium text-sm sm:text-base ${player.connected === false ? 'text-cream/40' : 'text-cream'}`}>
+                        {player.nickname}
+                      </span>
+                      {player.connected === false && (
+                        <span className="text-[10px] sm:text-xs font-mono text-cream/30 uppercase tracking-wider">
+                          Reconnecting...
+                        </span>
+                      )}
                       {player.isHost && (
                         <span className="text-[10px] sm:text-xs font-mono text-gold-500 uppercase tracking-wider">
                           Host
