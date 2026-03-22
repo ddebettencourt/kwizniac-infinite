@@ -104,17 +104,42 @@ Output JSON only:
     const content = textBlocks.map(b => b.text).join('');
     console.log('Combined text response length:', content.length);
 
-    // Parse JSON from the response
+    // Parse JSON from the response - try multiple strategies
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return {
-        clues: parsed.clues,
-        answerDifficulty: parsed.answerDifficulty ?? 5
-      };
+      let jsonStr = jsonMatch[0];
+      try {
+        const parsed = JSON.parse(jsonStr);
+        return {
+          clues: parsed.clues,
+          answerDifficulty: parsed.answerDifficulty ?? 5
+        };
+      } catch (parseErr) {
+        console.error('JSON parse failed, attempting cleanup. Error:', parseErr.message);
+        console.error('Raw JSON (first 1000 chars):', jsonStr.substring(0, 1000));
+
+        // Try fixing common issues: trailing commas, truncated JSON
+        jsonStr = jsonStr
+          .replace(/,\s*}/g, '}')        // trailing comma before }
+          .replace(/,\s*\]/g, ']')        // trailing comma before ]
+          .replace(/\.\.\.\s*}/g, '}')    // ellipsis before }
+          .replace(/\.\.\.\s*\]/g, ']');  // ellipsis before ]
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          console.log('JSON cleanup succeeded');
+          return {
+            clues: parsed.clues,
+            answerDifficulty: parsed.answerDifficulty ?? 5
+          };
+        } catch (retryErr) {
+          console.error('JSON cleanup also failed:', retryErr.message);
+          throw new Error(`Failed to parse clues JSON: ${parseErr.message}`);
+        }
+      }
     }
-    console.error('Failed to parse JSON from:', content.substring(0, 500));
-    throw new Error('Failed to parse clues from response');
+    console.error('No JSON found in response:', content.substring(0, 500));
+    throw new Error('No JSON found in clue response');
   } catch (error) {
     console.error('Error generating clues:', error.message);
     if (error.response) {
